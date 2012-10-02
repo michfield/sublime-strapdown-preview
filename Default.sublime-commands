@@ -1,0 +1,10 @@
+[
+    {
+        "caption": "Strapdown Preview: preview in a browser",
+        "command": "strapdown_preview", "args": { "target": "browser" }
+    },
+    {
+        "caption": "Strapdown Preview: preview in Sublime Text",
+        "command": "strapdown_preview", "args": { "target": "sublime" }
+    }
+]
