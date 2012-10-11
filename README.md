@@ -7,9 +7,6 @@ Sublime Text 2 plug-in that allows you preview your markdown files in your brows
 Strapdown.js is mixing some Javascript with [Bootstrap](http://twitter.github.com/bootstrap/)
 (Twitter's HTML5 & CSS framework) to show you beautiful presentation of your markdown files.
 
-If you have [LiveReload plug-in](https://github.com/dz0ny/LiveReload-sublimetext2) installed, your
-browser will auto-magically refresh page on every page-save.
-
 ## Installation :
 
  - you should use [Sublime Package Manager](http://wbond.net/sublime_packages/package_control#Features)

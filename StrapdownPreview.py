@@ -4,6 +4,7 @@ import tempfile
 import os
 import sys
 import re
+import urllib
 
 settings = sublime.load_settings('StrapdownPreview.sublime-settings')
 
@@ -37,8 +38,8 @@ class StrapdownPreviewCommand(sublime_plugin.TextCommand):
     # read header content
     title, theme = self.getMeta(contents)
 
-    # check if LiveReload ST2 extension installed
-    livereload_installed = ('LiveReload' in os.listdir(sublime.packages_path()))
+    if target != 'sublime':
+      contents = self.fixLocalImages(contents)
 
     # construct the content
     html = u'<!DOCTYPE html>\n'
@@ -51,9 +52,6 @@ class StrapdownPreviewCommand(sublime_plugin.TextCommand):
     html += contents
     html += '\n</xmp>\n'
     html += '<script src="http://strapdownjs.com/v/0.1/strapdown.js"></script>\n'
-
-    if livereload_installed:
-      html += '<script>document.write(\'<script src="http://\' + (location.host || \'localhost\').split(\':\')[0] + \':35729/livereload.js?snipver=1"></\' + \'script>\')</script>\n'
 
     html += '</html>'
 
@@ -115,3 +113,21 @@ class StrapdownPreviewCommand(sublime_plugin.TextCommand):
 
     return result["title"], result["theme"]
 
+  def fixLocalImages(self, string):
+    # fix relative paths
+
+    def imgfix(match):
+      tag, src = match.groups()
+      filename = self.view.file_name()
+      
+      if filename:
+        if not src.startswith(('file://', 'https://', 'http://', '/')):
+          # abs_path = u'file://%s/%s' % (os.path.dirname(filename), src)
+          abs_path = u'%s/%s' % (os.path.dirname(filename), src)
+          abs_path = urllib.pathname2url(abs_path)
+          tag = tag.replace(src, abs_path)
+      return tag
+
+    rexp = re.compile(r'(\!\[[^\]]*\]\((.*)\))')
+    string = rexp.sub(imgfix, string)
+    return string
