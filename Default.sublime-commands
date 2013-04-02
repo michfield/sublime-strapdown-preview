@@ -1,10 +1,10 @@
 [
     {
-        "caption": "Strapdown Preview: preview in a browser",
-        "command": "strapdown_preview", "args": { "target": "browser" }
+        "caption": "Strapdown.js Markdown: Preview in a browser",
+        "command": "strapdown_markdown_preview", "args": { "target": "browser" }
     },
     {
-        "caption": "Strapdown Preview: preview in Sublime Text",
-        "command": "strapdown_preview", "args": { "target": "sublime" }
+        "caption": "Strapdown.js Markdown: Preview in Sublime Text",
+        "command": "strapdown_markdown_preview", "args": { "target": "sublime" }
     }
 ]

@@ -1,0 +1,36 @@
+/*
+    Default settings
+    Strapdown.js Markdown Preview
+*/
+{
+    /*
+        Sets an opener for HTML files
+
+        default - Use the system default HTML viewer
+        other   - Provide a full path to an executable. For example: /Applications/Google.app or /Applications/Firefox.app
+    */
+
+    "browser": "default",
+
+    /*
+        Set default theme.
+        Check http://bootswatch.com/ for samples.
+
+        Valid values are:
+            amelia,
+            cerulean,
+            cyborg,
+            journal,
+            readable,
+            simplex,
+            slate,
+            spacelab,
+            spruce,
+            superhero,
+            united
+    */
+
+    "theme": "united"
+}
+
+
