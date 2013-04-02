@@ -15,21 +15,16 @@ from . import desktop
 
 settings = sublime.load_settings("Strapdown Markdown Preview.sublime-settings")
 
+# Check if this is Sublime Text 2
+#
+ST2 = sys.version_info < (3, 3)
+
+# Location of Strapdown.js files with themes
+#
+STRAPDOWN_LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'strapdown'))
+
 def getTempFilename(view):
   return os.path.join(tempfile.gettempdir(), '%s.html' % view.id())
-
-class StrapdownMarkdownPreviewListener(sublime_plugin.EventListener):
-  """ Update the output HTML when file has already been saved once """
-
-  def on_post_save(self, view):
-    if view.file_name().endswith(('.md', '.markdown', '.mdown')):
-      temp_file = getTempFilename(view)
-
-      if os.path.isfile(temp_file):
-        # reexec markdown conversion
-        print("started again but on disk")
-        view.run_command('strapdown_markdown_preview', {'target': 'disk'})
-        sublime.status_message("Strapdown.js Preview file updated")
 
 class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
   def run(self, edit, target = 'browser'):
@@ -60,7 +55,12 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
     html += '<xmp theme="%s" style="display:none;">\n' % theme
     html += contents
     html += '\n</xmp>\n'
-    html += '<script src="http://strapdownjs.com/v/0.1/strapdown.js"></script>\n'
+
+    config_local = settings.get('strapdown', 'default')
+    if config_local and config_local == 'local':
+      html += '<script src="%s"></script>\n' % urllib.request.pathname2url(os.path.join(STRAPDOWN_LIB_DIR, "strapdown.js"))
+    else:
+      html += '<script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>\n'
 
     html += '</html>'
 

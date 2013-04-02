@@ -10,12 +10,12 @@
         <other>: Provide a full path to an executable.
 
                 Windows examples:
-                "C:\\Program Files\\Internet Explorer\\iexplore.exe"
                 "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+                "C:\\Program Files\\Internet Explorer\\iexplore.exe"
                 "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe"
     */
 
-    "browser": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    "browser": "default",
 
     /*
         Set default theme.
@@ -35,7 +35,21 @@
             united
     */
 
-    "theme": "united"
+    "theme": "united",
+
+    /*
+        Sets which Strapdown.js version to use.
+
+        default: Use the remote version downloaded at
+                 a time of viewing a document
+        local:   Use version from hard disk.
+
+        Caution when using local version of Strapdown.js. It should be
+        faster to render, but if you plan to open preview on some other
+        computer, this version will not work as expected.
+    */
+
+    "strapdown": "local"
 }
 
 
