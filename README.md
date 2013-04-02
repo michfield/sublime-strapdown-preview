@@ -25,24 +25,38 @@ if you need it again.
  - use `Ctrl+Shift+P` then `Strapdown.js Markdown Preview` to launch a
    preview
  - or bind some key in your user key binding, using a line like this
-   one:
+   one:  
    `{ "keys": ["ctrl+alt+m"], "command": "strapdown_markdown_preview", "args": {"target": "browser"} },`
  
-### Custom attributes
+### Metadata
 
-You can specify additional details on top of your text file / active
+
+You can specify additional attributes on top of your text file / active
 window. These details can change theme and the title of rendered file.
 Just add a comment near the start, like this:
 
 ```
 <!--
-  title: This file's title
-  theme: cerulean
+  Title: Strapdown.js Markdown Preview plugin for Sublime Text
+  Theme: cerulean
 -->
 ```
+
+The idea is very similar to [YAML Front Matter][yamlfront] or
+[MultiMarkdown metadata header block][mmeta], but it's more in line with
+Strapdown.js idea. Thus using HTML comment markers as metadata markers.
+
+Metadata can be anywhere in document. If some attribute is specified
+multiple times, the last value will be used. For now, the only usable
+attributes are `title` and `theme`.
+
+[yamlfront]: https://github.com/mojombo/jekyll/wiki/YAML-Front-Matter
+[mmeta]: https://github.com/fletcher/MultiMarkdown/wiki/MultiMarkdown-Syntax-Guide#metadata
 
 ## Licence
 
 The code is available at
 [GitHub](https://github.com/michfield/StrapdownPreview) under MIT
 licence.
+
+

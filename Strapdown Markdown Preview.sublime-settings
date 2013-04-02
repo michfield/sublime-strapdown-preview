@@ -6,11 +6,16 @@
     /*
         Sets an opener for HTML files
 
-        default - Use the system default HTML viewer
-        other   - Provide a full path to an executable. For example: /Applications/Google.app or /Applications/Firefox.app
+        default: Use the system default HTML viewer
+        <other>: Provide a full path to an executable.
+
+                Windows examples:
+                "C:\\Program Files\\Internet Explorer\\iexplore.exe"
+                "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+                "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe"
     */
 
-    "browser": "default",
+    "browser": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
 
     /*
         Set default theme.

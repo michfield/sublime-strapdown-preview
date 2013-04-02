@@ -44,6 +44,7 @@ function as follows:
 
 desktop.open("http://www.python.org", "KDE") # Insists on KDE
 desktop.open("http://www.python.org", "GNOME") # Insists on GNOME
+desktop.open("http://www.python.org", "MATE") # Insists on MATE
 
 Without overriding using the desktop parameter, the open function will attempt
 to use the "standard" desktop opening mechanism which is controlled by the
@@ -117,7 +118,7 @@ except ImportError:
         opener.wait()
         return opener.poll() == 0
 
-import commands
+import subprocess
 
 # Private functions.
 
@@ -145,7 +146,7 @@ def _is_x11():
 
     "Return whether the X Window System is in use."
 
-    return os.environ.has_key("DISPLAY")
+    return "DISPLAY" in os.environ
 
 # Introspection functions.
 
@@ -156,18 +157,21 @@ def get_desktop():
     environment. If no environment could be detected, None is returned.
     """
 
-    if os.environ.has_key("KDE_FULL_SESSION") or \
-        os.environ.has_key("KDE_MULTIHEAD"):
+    if 'KDE_FULL_SESSION' in os.environ or \
+        'KDE_MULTIHEAD' in os.environ:
         try:
             if int(os.environ.get("KDE_SESSION_VERSION", "3")) >= 4:
                 return "KDE4"
         except ValueError:
             pass
         return "KDE"
-    elif os.environ.has_key("GNOME_DESKTOP_SESSION_ID") or \
-        os.environ.has_key("GNOME_KEYRING_SOCKET"):
+    elif "GNOME_DESKTOP_SESSION_ID" in os.environ or \
+        "GNOME_KEYRING_SOCKET" in os.environ:
         return "GNOME"
-    elif os.environ.has_key('DESKTOP_SESSION') and \
+    elif "MATE_DESKTOP_SESSION_ID" in os.environ or \
+        "MATE_KEYRING_SOCKET" in os.environ:
+        return "MATE"
+    elif 'DESKTOP_SESSION' in os.environ and \
         os.environ['DESKTOP_SESSION'].lower() == 'lubuntu':
         return "GNOME"
     elif sys.platform == "darwin":
@@ -177,7 +181,7 @@ def get_desktop():
     elif _is_xfce():
         return "XFCE"
 
-    # KDE, GNOME and XFCE run on X11, so we have to test for X11 last.
+    # KDE, GNOME, MATE and XFCE run on X11, so we have to test for X11 last.
 
     if _is_x11():
         return "X11"
@@ -212,6 +216,8 @@ def use_desktop(desktop):
         return "KDE"
     elif (desktop or detected) == "GNOME":
         return "GNOME"
+    elif (desktop or detected) == "MATE":
+        return "MATE"
     elif (desktop or detected) == "XFCE":
         return "XFCE"
     elif (desktop or detected) == "Mac OS X":
@@ -228,7 +234,7 @@ def is_standard():
     launching.
     """
 
-    return os.environ.has_key("DESKTOP_LAUNCH")
+    return "DESKTOP_LAUNCH" in os.environ
 
 # Activity functions.
 
@@ -276,6 +282,8 @@ def open(url, desktop=None, wait=0):
 
     elif desktop_in_use == "GNOME":
         cmd = ["gnome-open", url]
+    elif desktop_in_use == "MATE":
+        cmd = ["gnome-open", url]
 
     elif desktop_in_use == "XFCE":
         cmd = ["exo-open", url]
@@ -289,7 +297,7 @@ def open(url, desktop=None, wait=0):
     # Finish with an error where no suitable desktop was identified.
 
     else:
-        raise OSError, "Desktop '%s' not supported (neither DESKTOP_LAUNCH nor os.startfile could be used)" % desktop_in_use
+        raise OSError("Desktop '%s' not supported (neither DESKTOP_LAUNCH nor os.startfile could be used)" % desktop_in_use)
 
     return _run(cmd, 0, wait)
 

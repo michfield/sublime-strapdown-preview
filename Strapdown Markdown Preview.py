@@ -1,18 +1,25 @@
-import sublime, sublime_plugin
-import desktop
-import tempfile
-import os
 import sys
-import re
-import urllib
+import os
+import subprocess
+import sublime, sublime_plugin
 
-settings = sublime.load_settings('StrapdownPreview.sublime-settings')
+import re
+import json
+import tempfile
+
+import urllib.request
+import urllib.response
+import urllib.error
+
+from . import desktop
+
+settings = sublime.load_settings("Strapdown Markdown Preview.sublime-settings")
 
 def getTempFilename(view):
   return os.path.join(tempfile.gettempdir(), '%s.html' % view.id())
 
-class StrapdownPreviewListener(sublime_plugin.EventListener):
-  """ update the output html when file has already been saved once """
+class StrapdownMarkdownPreviewListener(sublime_plugin.EventListener):
+  """ Update the output HTML when file has already been saved once """
 
   def on_post_save(self, view):
     if view.file_name().endswith(('.md', '.markdown', '.mdown')):
@@ -20,11 +27,11 @@ class StrapdownPreviewListener(sublime_plugin.EventListener):
 
       if os.path.isfile(temp_file):
         # reexec markdown conversion
-        print 'started again but on disk'
-        view.run_command('strapdown_preview', {'target': 'disk'})
-        sublime.status_message('Strapdown.js preview file updated')
+        print("started again but on disk")
+        view.run_command('strapdown_markdown_preview', {'target': 'disk'})
+        sublime.status_message("Strapdown.js Preview file updated")
 
-class StrapdownPreviewCommand(sublime_plugin.TextCommand):
+class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
   def run(self, edit, target = 'browser'):
 
     contents = self.view.substr(sublime.Region(0, self.view.size()))
@@ -35,13 +42,15 @@ class StrapdownPreviewCommand(sublime_plugin.TextCommand):
     elif encoding == 'Western (Windows 1252)':
         encoding = 'windows-1252'
 
-    # read header content
+    # Read header with meta attributes
+    #
     title, theme = self.getMeta(contents)
 
     if target != 'sublime':
       contents = self.fixLocalImages(contents)
 
-    # construct the content
+    # Construct the content
+    #
     html = u'<!DOCTYPE html>\n'
     html += '<html>\n'
     html += '<head>\n'
@@ -55,42 +64,47 @@ class StrapdownPreviewCommand(sublime_plugin.TextCommand):
 
     html += '</html>'
 
+    # Update output HTML file. It is executed both for disk and also for
+    # browser targets
+    #
     if target in ['disk', 'browser']:
-      # update output html file (executed both for disk and browser targets)
 
       tmp_fullpath = getTempFilename(self.view)
-      tmp_html = open(tmp_fullpath, 'w')
-      tmp_html.write(html.encode(encoding))
+      tmp_html = open(tmp_fullpath, 'wt', encoding=encoding)
+      tmp_html.write(html)
       tmp_html.close()
 
       if target == 'browser':
         config_browser = settings.get('browser', 'default')
 
         if config_browser and config_browser != 'default':
-          cmd = '"%s" %s' % (config_browser, tmp_fullpath)
-    
-          if sys.platform == 'darwin':
-            # Mac OSX
-            cmd = "open -a %s" % cmd
-            print "Strapdown.js Preview: executing", cmd
-            result = os.system(cmd)
+          cmd = '%s "%s"' % (config_browser, tmp_fullpath)
 
-            if result != 0:
-              sublime.error_message('cannot execute "%s" Please check your Markdown Preview settings' % config_browser)
-            else:
-              sublime.status_message('Strapdown.js preview launched in %s' % config_browser)
+          # In OS X is specific
+          if sys.platform == 'darwin':
+            cmd = "open -a %s" % cmd
+
+          try:
+            subprocess.Popen([config_browser, tmp_fullpath])
+          except FileNotFoundError:
+            sublime.error_message('System cannot find the command specified "%s". Please check plugin settings.' % config_browser)
+          except:
+            sublime.error_message('For an unknown reason the system failed to execute "%s". Please check plugin settings.' % config_browser)
+          else:
+            sublime.status_message('Preview successfully launched with command: "%s"' % config_browser)
 
         else:
-          # open default browser
+
+          # Preview with default browser
           desktop.open(tmp_fullpath)
-          sublime.status_message('Strapdown.js preview launched in default HTML viewer')
+          sublime.status_message('Preview launched in default browser')
 
     elif target == 'sublime':
       new_view = self.view.window().new_file()
       new_edit = new_view.begin_edit()
       new_view.insert(new_edit, 0, html)
       new_view.end_edit(new_edit)
-      sublime.status_message('Strapdown.js preview launched in sublime')
+      sublime.status_message('Strapdown.js Preview launched in Sublime Text')
 
   def getMeta(self, string):
 
@@ -113,19 +127,21 @@ class StrapdownPreviewCommand(sublime_plugin.TextCommand):
 
     return result["title"], result["theme"]
 
+  # Fix relative paths
+  #
   def fixLocalImages(self, string):
-    # fix relative paths
 
     def imgfix(match):
       tag, src = match.groups()
       filename = self.view.file_name()
-      
+
       if filename:
         if not src.startswith(('file://', 'https://', 'http://', '/')):
           # abs_path = u'file://%s/%s' % (os.path.dirname(filename), src)
           abs_path = u'%s/%s' % (os.path.dirname(filename), src)
-          abs_path = urllib.pathname2url(abs_path)
+          abs_path = urllib.request.pathname2url(abs_path)
           tag = tag.replace(src, abs_path)
+
       return tag
 
     rexp = re.compile(r'(\!\[[^\]]*\]\((.*)\))')
