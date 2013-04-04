@@ -1,7 +1,8 @@
 import sys
 import os
 import subprocess
-import sublime, sublime_plugin
+import sublime
+import sublime_plugin
 
 import re
 import json
@@ -12,8 +13,6 @@ import urllib.response
 import urllib.error
 
 from . import desktop
-
-settings = sublime.load_settings("Strapdown Markdown Preview.sublime-settings")
 
 # Check if this is Sublime Text 2
 #
@@ -28,6 +27,8 @@ def getTempFilename(view):
 
 class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
   def run(self, edit, target = 'browser'):
+
+    settings = sublime.load_settings("Strapdown Markdown Preview.sublime-settings")
 
     contents = self.view.substr(sublime.Region(0, self.view.size()))
     encoding = self.view.encoding()
