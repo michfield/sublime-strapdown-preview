@@ -28,6 +28,7 @@ def getTempFilename(view):
 class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
   def run(self, edit, target = 'browser'):
 
+    global settings
     settings = sublime.load_settings("Strapdown Markdown Preview.sublime-settings")
 
     contents = self.view.substr(sublime.Region(0, self.view.size()))
