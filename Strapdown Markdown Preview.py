@@ -103,10 +103,9 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
 
     elif target == 'sublime':
       new_view = self.view.window().new_file()
-      new_edit = new_view.begin_edit()
-      new_view.insert(new_edit, 0, html)
-      new_view.end_edit(new_edit)
-      sublime.status_message('Strapdown.js Preview launched in Sublime Text')
+      new_view.set_name(title + ".html")
+      new_view.insert(edit, 0, html)
+      sublime.status_message('Preview launched in Sublime Text')
 
   def getMeta(self, string):
 
