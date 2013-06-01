@@ -1,5 +1,5 @@
-Strapdown.js Markdown Preview in Sublime Text
-=============================================
+ST3 » Strapdown.js Markdown Preview
+===================================
 
 Sublime Text 3 plug-in that allows you preview your markdown files in
 your browser, using beautiful [Strapdown.js](http://strapdownjs.com/).
