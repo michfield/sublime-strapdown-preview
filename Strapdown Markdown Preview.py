@@ -12,7 +12,8 @@ import urllib.request
 import urllib.response
 import urllib.error
 
-from . import desktop
+import webbrowser
+
 
 # Check if this is Sublime Text 2
 #
@@ -79,27 +80,11 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
       if target == 'browser':
         config_browser = settings.get('browser', 'default')
 
-        if config_browser and config_browser != 'default':
-          cmd = '%s "%s"' % (config_browser, tmp_fullpath)
 
-          # In OS X is specific
-          if sys.platform == 'darwin':
-            cmd = "open -a %s" % cmd
+        controller = webbrowser.get()
 
-          try:
-            subprocess.Popen([config_browser, tmp_fullpath])
-          except FileNotFoundError:
-            sublime.error_message('System cannot find the command specified "%s". Please check plugin settings.' % config_browser)
-          except:
-            sublime.error_message('For an unknown reason the system failed to execute "%s". Please check plugin settings.' % config_browser)
-          else:
-            sublime.status_message('Preview successfully launched with command: "%s"' % config_browser)
-
-        else:
-
-          # Preview with default browser
-          desktop.open(tmp_fullpath)
-          sublime.status_message('Preview launched in default browser')
+        controller.open(tmp_fullpath)
+        sublime.status_message('Preview launched in default browser')
 
     elif target == 'sublime':
       new_view = self.view.window().new_file()
