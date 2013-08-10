@@ -9,8 +9,6 @@ import json
 import tempfile
 
 import urllib.request
-import urllib.response
-import urllib.error
 
 import webbrowser
 
