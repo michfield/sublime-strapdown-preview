@@ -1,16 +1,14 @@
 import sys
 import os
-import subprocess
-import sublime
-import sublime_plugin
-
 import re
-import json
 import tempfile
 
 import urllib.request
 
 import webbrowser
+
+import sublime
+import sublime_plugin
 
 
 # Check if this is Sublime Text 2
@@ -26,9 +24,9 @@ def getTempFilename(view):
 
 class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
   def run(self, edit, target = 'browser'):
+    print(dir(self))
 
-    global settings
-    settings = sublime.load_settings("Strapdown Markdown Preview.sublime-settings")
+    self.settings = sublime.load_settings("Strapdown Markdown Preview.sublime-settings")
 
     contents = self.view.substr(sublime.Region(0, self.view.size()))
     encoding = self.view.encoding()
@@ -57,7 +55,7 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
     html += contents
     html += '\n</xmp>\n'
 
-    config_local = settings.get('strapdown', 'default')
+    config_local = self.settings.get('strapdown', 'default')
     if config_local and config_local == 'local':
       html += '<script src="%s"></script>\n' % urllib.request.pathname2url(os.path.join(STRAPDOWN_LIB_DIR, "strapdown.js"))
     else:
@@ -76,10 +74,8 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
       tmp_html.close()
 
       if target == 'browser':
-        config_browser = settings.get('browser', 'default')
-
-
-        controller = webbrowser.get()
+        browser = self.settings.get('browser')
+        controller = webbrowser.get(browser)
 
         controller.open(tmp_fullpath)
         sublime.status_message('Preview launched in default browser')
@@ -99,7 +95,7 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
     else:
       title = 'Untitled document'
 
-    result = { "title": title, "theme" : settings.get('theme', 'united') }
+    result = {"title": title, "theme" : self.settings.get('theme', 'united') }
 
     match = re.search(re.compile(r'<!--.*title:\s*([^\n]*)\s*\n.*-->', re.IGNORECASE | re.DOTALL), string)
     if match:
