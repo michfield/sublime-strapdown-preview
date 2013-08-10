@@ -24,8 +24,6 @@ def getTempFilename(view):
 
 class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
   def run(self, edit, target = 'browser'):
-    print(dir(self))
-
     self.settings = sublime.load_settings("Strapdown Markdown Preview.sublime-settings")
 
     contents = self.view.substr(sublime.Region(0, self.view.size()))
@@ -76,7 +74,6 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
       if target == 'browser':
         browser = self.settings.get('browser')
         controller = webbrowser.get(browser)
-
         controller.open(tmp_fullpath)
         sublime.status_message('Preview launched in default browser')
 
