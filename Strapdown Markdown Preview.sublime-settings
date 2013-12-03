@@ -40,7 +40,7 @@
     /*
         Sets which Strapdown.js version to use.
 
-        default: Use the remote version downloaded at
+        remote: Use the remote version downloaded at
                  a time of viewing a document
         local:   Use version from hard disk.
 

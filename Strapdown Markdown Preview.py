@@ -59,7 +59,7 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
     output_html += contents
     output_html += '\n</xmp>\n'
 
-    config_local = settings.get('strapdown', 'default')
+    config_local = settings.get('strapdown', 'remote')
     if config_local and config_local == 'local':
       output_html += '<script src="%s"></script>\n' % urllib.request.pathname2url(os.path.join(STRAPDOWN_LIB_DIR, "strapdown.js"))
     else:
