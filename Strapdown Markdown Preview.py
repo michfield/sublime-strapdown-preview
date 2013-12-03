@@ -109,6 +109,7 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
       sublime.status_message('Preview launched in Sublime Text')
 
   def getMeta(self, string):
+    settings = sublime.load_settings("Strapdown Markdown Preview.sublime-settings")
 
     filename = self.view.file_name()
 
