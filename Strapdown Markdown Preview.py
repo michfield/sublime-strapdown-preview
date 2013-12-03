@@ -5,12 +5,13 @@ import sublime
 import sublime_plugin
 
 import re
-import json
 import tempfile
 
 import urllib.request
 import urllib.response
 import urllib.error
+
+import html
 
 from . import desktop
 
@@ -48,23 +49,23 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
 
     # Construct the content
     #
-    html = u'<!DOCTYPE html>\n'
-    html += '<html>\n'
-    html += '<head>\n'
-    html += '<meta charset="%s">\n' % encoding
-    html += '<title>%s</title>\n' % title
-    html += '</head>\n'
-    html += '<xmp theme="%s" style="display:none;">\n' % theme
-    html += contents
-    html += '\n</xmp>\n'
+    output_html = u'<!DOCTYPE html>\n'
+    output_html += '<html>\n'
+    output_html += '<head>\n'
+    output_html += '<meta charset="%s">\n' % encoding
+    output_html += '<title>%s</title>\n' % title
+    output_html += '</head>\n'
+    output_html += '<xmp theme="%s" style="display:none;">\n' % theme
+    output_html += contents
+    output_html += '\n</xmp>\n'
 
     config_local = settings.get('strapdown', 'default')
     if config_local and config_local == 'local':
-      html += '<script src="%s"></script>\n' % urllib.request.pathname2url(os.path.join(STRAPDOWN_LIB_DIR, "strapdown.js"))
+      output_html += '<script src="%s"></script>\n' % urllib.request.pathname2url(os.path.join(STRAPDOWN_LIB_DIR, "strapdown.js"))
     else:
-      html += '<script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>\n'
+      output_html += '<script src="' + html.escape(settings.get('remote', 'http://strapdownjs.com/v/0.2/strapdown.js')) + '"></script>\n'
 
-    html += '</html>'
+    output_html += '</html>'
 
     # Update output HTML file. It is executed both for disk and also for
     # browser targets
@@ -73,7 +74,7 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
 
       tmp_fullpath = getTempFilename(self.view)
       tmp_html = open(tmp_fullpath, 'wt', encoding=encoding)
-      tmp_html.write(html)
+      tmp_html.write(output_html)
       tmp_html.close()
 
       if target == 'browser':
@@ -104,7 +105,7 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
     elif target == 'sublime':
       new_view = self.view.window().new_file()
       new_view.set_name(title + ".html")
-      new_view.insert(edit, 0, html)
+      new_view.insert(edit, 0, output_html)
       sublime.status_message('Preview launched in Sublime Text')
 
   def getMeta(self, string):
