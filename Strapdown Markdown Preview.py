@@ -1,18 +1,15 @@
 import sys
 import os
-import subprocess
-import sublime
-import sublime_plugin
-
 import re
-import json
 import tempfile
 
 import urllib.request
-import urllib.response
-import urllib.error
 
-from . import desktop
+import webbrowser
+
+import sublime
+import sublime_plugin
+
 
 # Check if this is Sublime Text 2
 #
@@ -27,9 +24,7 @@ def getTempFilename(view):
 
 class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
   def run(self, edit, target = 'browser'):
-
-    global settings
-    settings = sublime.load_settings("Strapdown Markdown Preview.sublime-settings")
+    self.settings = sublime.load_settings("Strapdown Markdown Preview.sublime-settings")
 
     contents = self.view.substr(sublime.Region(0, self.view.size()))
     encoding = self.view.encoding()
@@ -58,7 +53,7 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
     html += contents
     html += '\n</xmp>\n'
 
-    config_local = settings.get('strapdown', 'default')
+    config_local = self.settings.get('strapdown', 'default')
     if config_local and config_local == 'local':
       html += '<script src="%s"></script>\n' % urllib.request.pathname2url(os.path.join(STRAPDOWN_LIB_DIR, "strapdown.js"))
     else:
@@ -77,29 +72,10 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
       tmp_html.close()
 
       if target == 'browser':
-        config_browser = settings.get('browser', 'default')
-
-        if config_browser and config_browser != 'default':
-          cmd = '%s "%s"' % (config_browser, tmp_fullpath)
-
-          # In OS X is specific
-          if sys.platform == 'darwin':
-            cmd = "open -a %s" % cmd
-
-          try:
-            subprocess.Popen([config_browser, tmp_fullpath])
-          except FileNotFoundError:
-            sublime.error_message('System cannot find the command specified "%s". Please check plugin settings.' % config_browser)
-          except:
-            sublime.error_message('For an unknown reason the system failed to execute "%s". Please check plugin settings.' % config_browser)
-          else:
-            sublime.status_message('Preview successfully launched with command: "%s"' % config_browser)
-
-        else:
-
-          # Preview with default browser
-          desktop.open(tmp_fullpath)
-          sublime.status_message('Preview launched in default browser')
+        browser = self.settings.get('browser')
+        controller = webbrowser.get(browser)
+        controller.open(tmp_fullpath)
+        sublime.status_message('Preview launched in default browser')
 
     elif target == 'sublime':
       new_view = self.view.window().new_file()
@@ -116,7 +92,7 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
     else:
       title = 'Untitled document'
 
-    result = { "title": title, "theme" : settings.get('theme', 'united') }
+    result = {"title": title, "theme" : self.settings.get('theme', 'united') }
 
     match = re.search(re.compile(r'<!--.*title:\s*([^\n]*)\s*\n.*-->', re.IGNORECASE | re.DOTALL), string)
     if match:
