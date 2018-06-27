@@ -74,7 +74,8 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
       if target == 'browser':
         browser = self.settings.get('browser')
         controller = webbrowser.get(browser)
-        controller.open(tmp_fullpath)
+        # On Mac, if the file:// protocol is not specified, the file is not opened.
+        controller.open('file:///' + tmp_fullpath) 
         sublime.status_message('Preview launched in default browser')
 
     elif target == 'sublime':
