@@ -11,6 +11,7 @@ import webbrowser
 import sublime
 import sublime_plugin
 
+from threading import Timer
 
 # Check if this is Sublime Text 2
 #
@@ -21,7 +22,12 @@ ST2 = sys.version_info < (3, 3)
 STRAPDOWN_LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'strapdown'))
 
 def getTempFilename(view):
-  return os.path.join(tempfile.gettempdir(), '%s.html' % view.id())
+  file = os.path.join(tempfile.gettempdir(), '%s.html' % view.id())
+
+  # Remove the temporary file after 15 seconds.
+  Timer(15, lambda: os.remove(file)).start()
+
+  return file
 
 class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
   def run(self, edit, target = 'browser'):
