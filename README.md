@@ -31,7 +31,7 @@ if you need it again.
 `target` argument can be:
 
 * `browser`: Creates a HTML file in the OS temporary folder and opens it with the configured browser.
-* `disk`: Creates a HTML file in the OS temporary folder.
+* `disk`: Creates a HTML file within the folder of the original markdown file.
 * `sublime`: Opens a new view in Sublime Text and puts the HTML content in it.
 
 ### Metadata

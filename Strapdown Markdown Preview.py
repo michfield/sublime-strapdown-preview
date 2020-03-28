@@ -67,15 +67,22 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
     #
     if target in ['disk', 'browser']:
 
-      tmp_fullpath = getTempFilename(self.view)
-      tmp_html = open(tmp_fullpath, 'wt', encoding=encoding)
-      tmp_html.write(output_html)
-      tmp_html.close()
+      if not self.view.file_name():
+        target = "browser"
+
+      if target == "disk":
+        target_file = os.path.splitext(self.view.file_name())[0] + ".html"
+
+      elif target == "browser":
+        target_file = getTempFilename(self.view)
+
+      with open(target_file, 'wt', encoding=encoding) as f:
+        f.write(output_html)
 
       if target == 'browser':
         browser = self.settings.get('browser')
         controller = webbrowser.get(browser)
-        controller.open(tmp_fullpath)
+        controller.open(target_file)
         sublime.status_message('Preview launched in default browser')
 
     elif target == 'sublime':
