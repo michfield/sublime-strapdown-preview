@@ -101,7 +101,7 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
     if filename:
       title, extension = os.path.splitext(os.path.basename(filename))
     else:
-      title = 'Untitled document'
+      title = self.view.name() or 'Untitled document'
 
     result = {"title": title, "theme" : self.settings.get('theme', 'united') }
 
