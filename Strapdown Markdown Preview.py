@@ -79,11 +79,10 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
       with open(target_file, 'wt', encoding=encoding) as f:
         f.write(output_html)
 
-      if target == 'browser':
-        browser = self.settings.get('browser')
-        controller = webbrowser.get(browser)
-        controller.open(target_file)
-        sublime.status_message('Preview launched in default browser')
+      browser = self.settings.get('browser')
+      controller = webbrowser.get(browser)
+      controller.open(target_file)
+      sublime.status_message('Preview launched in default browser')
 
     elif target == 'sublime':
       new_view = self.view.window().new_file()
