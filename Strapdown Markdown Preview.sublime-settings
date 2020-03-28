@@ -15,7 +15,7 @@
                 "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe"
     */
 
-    "browser": "default",
+    "browser": null,
 
     /*
         Set default theme.
