@@ -1,7 +1,6 @@
 import sys
 import os
 import re
-import tempfile
 
 import urllib.request
 
@@ -22,7 +21,7 @@ ST2 = sys.version_info < (3, 3)
 STRAPDOWN_LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'strapdown'))
 
 def getTempFilename(view):
-  file = os.path.join(tempfile.gettempdir(), '%s.html' % view.id())
+  file = os.path.join(sublime.packages_path(), 'strapdown-preview-%s.html' % view.id())
 
   # Remove the temporary file after 15 seconds.
   Timer(15, lambda: os.remove(file)).start()
