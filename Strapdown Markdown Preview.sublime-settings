@@ -40,7 +40,7 @@
     /*
         Sets which Strapdown.js version to use.
 
-        default: Use the remote version downloaded at
+        remote: Use the remote version downloaded at
                  a time of viewing a document
         local:   Use version from hard disk.
 
@@ -49,7 +49,16 @@
         computer, this version will not work as expected.
     */
 
-    "strapdown": "local"
+    "strapdown": "local",
+
+    /*
+        URL to remote strapdown.js file. If you will upload your own remote strapdown.js,
+        don't forget to upload other files using the below hierarchy.
+
+        + strapdown
+            + themes
+            strapdown.js
+            strapdown.css
+     */
+    "remote": "http://strapdownjs.com/v/0.2/strapdown.js"
 }
-
-

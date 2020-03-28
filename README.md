@@ -27,7 +27,15 @@ if you need it again.
  - or bind some key in your user key binding, using a line like this
    one:  
    `{ "keys": ["ctrl+alt+m"], "command": "strapdown_markdown_preview", "args": {"target": "browser"} },`
- 
+
+`target` argument can be:
+
+* `browser`: Creates a HTML file in the `Packages` folder and opens it with the
+  configured browser. Temporary file is automatically deleted after 15 seconds.
+* `disk`: Creates a HTML file within the folder of the original markdown file and
+  opens it with the configured browser.
+* `sublime`: Opens a new view in Sublime Text and puts the HTML content in it.
+
 ### Metadata
 
 

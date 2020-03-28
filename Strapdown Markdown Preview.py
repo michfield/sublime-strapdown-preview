@@ -1,15 +1,16 @@
 import sys
 import os
 import re
-import tempfile
 
 import urllib.request
 
+import html
 import webbrowser
 
 import sublime
 import sublime_plugin
 
+from threading import Timer
 
 # Check if this is Sublime Text 2
 #
@@ -20,7 +21,12 @@ ST2 = sys.version_info < (3, 3)
 STRAPDOWN_LIB_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), 'strapdown'))
 
 def getTempFilename(view):
-  return os.path.join(tempfile.gettempdir(), '%s.html' % view.id())
+  file = os.path.join(sublime.packages_path(), 'strapdown-preview-%s.html' % view.id())
+
+  # Remove the temporary file after 15 seconds.
+  Timer(15, lambda: os.remove(file)).start()
+
+  return file
 
 class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
   def run(self, edit, target = 'browser'):
@@ -43,54 +49,59 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
 
     # Construct the content
     #
-    html = u'<!DOCTYPE html>\n'
-    html += '<html>\n'
-    html += '<head>\n'
-    html += '<meta charset="%s">\n' % encoding
-    html += '<title>%s</title>\n' % title
-    html += '</head>\n'
-    html += '<xmp theme="%s" style="display:none;">\n' % theme
-    html += contents
-    html += '\n</xmp>\n'
+    output_html = u'<!DOCTYPE html>\n'
+    output_html += '<html>\n'
+    output_html += '<head>\n'
+    output_html += '<meta charset="%s">\n' % encoding
+    output_html += '<title>%s</title>\n' % title
+    output_html += '</head>\n'
+    output_html += '<xmp theme="%s" style="display:none;">\n' % theme
+    output_html += contents
+    output_html += '\n</xmp>\n'
 
-    config_local = self.settings.get('strapdown', 'default')
+    config_local = self.settings.get('strapdown', 'remote')
     if config_local and config_local == 'local':
-      html += '<script src="%s"></script>\n' % urllib.request.pathname2url(os.path.join(STRAPDOWN_LIB_DIR, "strapdown.js"))
+      output_html += '<script src="%s"></script>\n' % urllib.request.pathname2url(os.path.join(STRAPDOWN_LIB_DIR, "strapdown.js"))
     else:
-      html += '<script src="http://strapdownjs.com/v/0.2/strapdown.js"></script>\n'
+      output_html += '<script src="' + html.escape(self.settings.get('remote', 'http://strapdownjs.com/v/0.2/strapdown.js')) + '"></script>\n'
 
-    html += '</html>'
+    output_html += '</html>'
 
     # Update output HTML file. It is executed both for disk and also for
     # browser targets
     #
     if target in ['disk', 'browser']:
 
-      tmp_fullpath = getTempFilename(self.view)
-      tmp_html = open(tmp_fullpath, 'wt', encoding=encoding)
-      tmp_html.write(html)
-      tmp_html.close()
+      if not self.view.file_name():
+        target = "browser"
 
-      if target == 'browser':
-        browser = self.settings.get('browser')
-        controller = webbrowser.get(browser)
-        controller.open(tmp_fullpath)
-        sublime.status_message('Preview launched in default browser')
+      if target == "disk":
+        target_file = os.path.splitext(self.view.file_name())[0] + ".html"
+
+      elif target == "browser":
+        target_file = getTempFilename(self.view)
+
+      with open(target_file, 'wt', encoding=encoding) as f:
+        f.write(output_html)
+
+      browser = self.settings.get('browser')
+      controller = webbrowser.get(browser)
+      controller.open(target_file)
+      sublime.status_message('Preview launched in default browser')
 
     elif target == 'sublime':
       new_view = self.view.window().new_file()
       new_view.set_name(title + ".html")
-      new_view.insert(edit, 0, html)
+      new_view.insert(edit, 0, output_html)
       sublime.status_message('Preview launched in Sublime Text')
 
   def getMeta(self, string):
-
     filename = self.view.file_name()
 
     if filename:
       title, extension = os.path.splitext(os.path.basename(filename))
     else:
-      title = 'Untitled document'
+      title = self.view.name() or 'Untitled document'
 
     result = {"title": title, "theme" : self.settings.get('theme', 'united') }
 
