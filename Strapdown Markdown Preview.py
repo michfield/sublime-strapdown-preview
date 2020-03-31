@@ -49,21 +49,16 @@ class StrapdownMarkdownPreviewCommand(sublime_plugin.TextCommand):
 
     # Construct the content
     #
-    output_html = u'<!DOCTYPE html>\n'
-    output_html += '<html>\n'
-    output_html += '<head>\n'
-    output_html += '<meta charset="%s">\n' % encoding
-    output_html += '<title>%s</title>\n' % title
-    output_html += '</head>\n'
-    output_html += '<xmp theme="%s" style="display:none;">\n' % theme
+    output_html = u'<!DOCTYPE html><html><head><meta charset="%s"><title>%s</title></head>\n' % (encoding, title)
+    output_html += '<xmp theme="%s" style="display:none;">\n\n' % theme
     output_html += contents
-    output_html += '\n</xmp>\n'
+    output_html += '\n</xmp>'
 
     config_local = self.settings.get('strapdown', 'remote')
     if config_local and config_local == 'local':
-      output_html += '<script src="%s"></script>\n' % urllib.request.pathname2url(os.path.join(STRAPDOWN_LIB_DIR, "strapdown.js"))
+      output_html += '<script src="%s"></script>' % urllib.request.pathname2url(os.path.join(STRAPDOWN_LIB_DIR, "strapdown.js"))
     else:
-      output_html += '<script src="' + html.escape(self.settings.get('remote', 'http://strapdownjs.com/v/0.2/strapdown.js')) + '"></script>\n'
+      output_html += '<script src="' + html.escape(self.settings.get('remote', 'http://strapdownjs.com/v/0.2/strapdown.js')) + '"></script>'
 
     output_html += '</html>'
 
